@@ -37,6 +37,7 @@ fn main() -> MyResult<()> {
                 out.write(&b)?;
                 line.clear();
             }
+            out.flush()?;
         },
     }
     Ok(())
