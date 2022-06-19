@@ -1,6 +1,6 @@
 // 参考 : https://qiita.com/V_lasergun/items/4926654ab4bd1ebc3d6c
 //        https://keens.github.io/blog/2017/10/05/rustdekousokunahyoujunshutsuryoku/
-use encoding_rs; // Shift_JIS のファイルへエンコードするのに必要
+// use encoding_rs; // Shift_JIS のファイルへエンコードするのに必要
 use std::error::Error;
 use std::env;
 use std::fs::File;
@@ -29,12 +29,19 @@ fn main() -> MyResult<()> {
                     break;
                 }
                 // utf8 の時点で改行コードをLFからCRLFに変更
-                line = line.replace("\n", "\r\n");
+                line = line.replace('\n', "\r\n");
                 // 改行コード変更済みの行データをShift_JISに変換
                 let (res, _, _) = encoding_rs::SHIFT_JIS.encode(&line);
                 let b = res.into_owned();
                 // バイトデータをそもまま出力
-                out.write(&b)?;
+                // out.write(&b)?;
+                // https://rust-lang.github.io/rust-clippy/master/index.html#unused_io_amount
+                // なぜこれが悪いのですか？
+                // io :: Write :: write（_vectored）およびio :: Read :: read（_vectored）は、バッファー全体を処理することが保証されていません。
+                //  処理されたバイト数を返します。
+                // これは、指定されたバッファの長さよりも小さい場合があります。
+                //  部分的な書き込み/読み取りを処理する必要がない場合は、代わりにwrite_all/read_exactを使用してください。
+                out.write_all(&b)?;
                 line.clear();
             }
             out.flush()?;
